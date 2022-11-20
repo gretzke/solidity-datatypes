@@ -1,21 +1,11 @@
 require('dotenv').config();
-import { ethers, network, upgrades } from 'hardhat';
-
-let num: number;
-
-if (network.name === 'mainnet') {
-  num = 1;
-} else if (network.name === 'goerli') {
-  num = 2;
-} else {
-  throw new Error('Unsupported network');
-}
+import { ethers } from 'hardhat';
 
 async function main(): Promise<void> {
   const [deployer] = await ethers.getSigners();
   console.log('Deploying contract with account:', deployer.address);
-  const factory = await ethers.getContractFactory('TestContract');
-  const contract = await factory.deploy(num);
+  const factory = await ethers.getContractFactory('DataTypes');
+  const contract = await factory.deploy();
   console.log('Contract address:', contract.address);
 }
 
