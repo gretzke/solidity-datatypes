@@ -2,7 +2,6 @@
 pragma solidity 0.8.17;
 
 contract DataTypes {
-
     uint256 public num;
     int256 private amount;
     bool internal boo;
@@ -18,7 +17,16 @@ contract DataTypes {
         Rejected,
         Canceled
     }
-    Status public status; 
+    Status public status;
+
+    struct Todo {
+        string text;
+        bool completed;
+    }
+
+    Todo[] public todos;
+
+    mapping(address => uint) public map;
 
     function setNum(uint256 newNum) public {
         num = newNum;
@@ -36,15 +44,15 @@ contract DataTypes {
         boo = newBoo;
     }
 
-    function getBoo() public view returns(bool) {
+    function getBoo() public view returns (bool) {
         return boo;
     }
 
-    function getAddr() public view returns(address) {
-        return(addr);
+    function getAddr() public view returns (address) {
+        return (addr);
     }
 
-    function getPure() external pure returns(uint16) {
+    function getPure() external pure returns (uint16) {
         return (15 + 17);
     }
 
@@ -76,8 +84,24 @@ contract DataTypes {
         return fixedSizeArr;
     }
 
-    function concatStr(string memory newStr) external view returns(string memory) {
+    function concatStr(string memory newStr) external view returns (string memory) {
         return string.concat(str, newStr);
     }
 
+    function createStruct(string calldata _text) public {
+        todos.push(Todo(_text, false));
+    }
+
+    function getStruct(uint _index) public view returns (string memory text, bool completed) {
+        Todo storage todo = todos[_index];
+        return (todo.text, todo.completed);
+    }
+
+    function getMap(address _addr) public view returns (uint) {
+        return map[_addr];
+    }
+
+    function setMap(address _addr, uint _i) public {
+        map[_addr] = _i;
+    }
 }
