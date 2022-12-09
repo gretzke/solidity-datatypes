@@ -1,30 +1,59 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.17;
 
-contract DataTypes {
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract A {
+    uint256 public x;
+
+    constructor(uint256 _x) {
+        x = _x;
+    }
+}
+
+enum Status {
+    Accepted,
+    Rejected,
+    Canceled
+}
+
+struct Todo {
+    string text;
+    bool completed;
+    mapping(uint256 => uint256) map;
+}
+
+type CustomNumber is uint256;
+error CustomErrorWithParameter(address test);
+
+contract DataTypes is Ownable {
     uint256 public num;
     int256 private amount;
-    bool internal boo;
+    bool internal _bool;
     address public addr = 0xb794F5eA0ba39494cE839613fffBA74279579268;
-    bytes1 private byt = 0xb5;
+    bytes1 private _byte = 0xb5;
     string public str = "Hello";
-
+    bytes32 public role = keccak256("admin");
     uint[] public arr;
     uint[5] public fixedSizeArr;
-
-    enum Status {
-        Accepted,
-        Rejected,
-        Canceled
-    }
+    uint256 public counter = 0;
+    mapping(uint256 => A) public contracts;
+    CustomNumber public customNum;
     Status public status;
+    Todo[] public todos;
+    Todo public myTodo;
 
-    struct Todo {
-        string text;
-        bool completed;
+    constructor() {
+        contracts[counter++] = new A(15);
+        customNum = CustomNumber.wrap(999);
+        myTodo.text = "Hello World";
+        myTodo.completed = true;
+        myTodo.map[0] = 1;
     }
 
-    Todo[] public todos;
+    function deployContract(uint256 x) public {
+        contracts[counter++] = new A(x);
+    }
 
     mapping(address => uint) public map;
 
@@ -32,20 +61,25 @@ contract DataTypes {
         num = newNum;
     }
 
+    // function overloading
+    function setNum(uint256 newNum, uint256 x) public {
+        num = newNum + x;
+    }
+
     function setAmount(int256 newAmount) external {
         amount = newAmount;
     }
 
-    function setExternalBoo(bool newBoo) external {
-        setInternalBoo(newBoo);
+    function setExternalBool(bool newBoo) external {
+        setInternalBool(newBoo);
     }
 
-    function setInternalBoo(bool newBoo) internal {
-        boo = newBoo;
+    function setInternalBool(bool newBoo) internal {
+        _bool = newBoo;
     }
 
-    function getBoo() public view returns (bool) {
-        return boo;
+    function getBool() public view returns (bool) {
+        return _bool;
     }
 
     function getAddr() public view returns (address) {
@@ -64,12 +98,12 @@ contract DataTypes {
         status = _status;
     }
 
-    function setByt(bytes1 newByt) private {
-        byt = newByt;
+    function setByte(bytes1 newByt) private {
+        _byte = newByt;
     }
 
-    function setExternalByt(bytes1 newByt) external {
-        setByt(newByt);
+    function setExternalByte(bytes1 newByt) external {
+        setByte(newByt);
     }
 
     function push(uint i) public {
@@ -78,6 +112,10 @@ contract DataTypes {
 
     function getArrSingle(uint i) public view returns (uint) {
         return arr[i];
+    }
+
+    function getArrDynamic() public view returns (uint[] memory) {
+        return arr;
     }
 
     function getArr() public view returns (uint[5] memory) {
@@ -103,5 +141,20 @@ contract DataTypes {
 
     function setMap(address _addr, uint _i) public {
         map[_addr] = _i;
+    }
+
+    function allTodos() public view returns (Todo[] memory) {
+        return todos;
+    }
+
+    function payMe(uint256 _x) public payable {
+        num = _x;
+        require(msg.value > 0, "You need to send some Ether");
+        (bool success, ) = msg.sender.call{value: msg.value}("");
+        assert(success);
+    }
+
+    function fail() public {
+        revert CustomErrorWithParameter(msg.sender);
     }
 }
