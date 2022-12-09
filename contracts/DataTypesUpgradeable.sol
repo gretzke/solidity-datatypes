@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.17;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract A {
     uint256 public x;
@@ -31,7 +31,7 @@ struct TodoWithMap {
 type CustomNumber is uint256;
 error CustomErrorWithParameter(address test);
 
-contract DataTypes is Ownable {
+contract DataTypesUpgradeable is OwnableUpgradeable {
     uint256 public num;
     int256 private amount;
     bool internal _bool;
@@ -48,7 +48,8 @@ contract DataTypes is Ownable {
     Todo[] public todos;
     TodoWithMap public myTodo;
 
-    constructor() {
+    function initialize() public initializer {
+        __Ownable_init();
         contracts[counter++] = new A(15);
         customNum = CustomNumber.wrap(999);
         myTodo.text = "Hello World";
